@@ -1,8 +1,8 @@
 'use strict';
 
-var app = require('../index');
+var app = require('../index').app;
 var MatchUp = require('./MatchUp');
-var io = require('socket.io')(app);
+var io = require('../index').io;
 var games = [];
 
 app.post('/game/match', function (req, res) {
@@ -23,8 +23,11 @@ class Game {
   constructor(matchData) {
     this.id = matchData.id;
     this.players = matchData.players;
+    this.namespace = io.of(`/${this.id}`);
 
-    this.room = io.of(`/${this.id}`);
+    this.namespace.on('connection', function(socket) {
+      console.log('Player connected to game:', this.id);
+    });
   }
 
   getPlayers() {
